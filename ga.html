@@ -1,0 +1,1076 @@
+﻿<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قوتابخانەی گەیلانی - فۆڕمی تۆمارکردنی قوتابیان</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Vazirmatn -->
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- html2pdf CDN for single-page PDF report export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Vazirmatn', 'sans-serif'],
+                    },
+                    colors: {
+                        gold: {
+                            300: '#fde047',
+                            400: '#facc15',
+                            500: '#d4af37',
+                            600: '#ca8a04',
+                            700: '#a16207',
+                        },
+                        emeraldCustom: {
+                            800: '#064e3b',
+                            900: '#022c22',
+                            950: '#011c15',
+                        },
+                        darkbg: '#0a100d',
+                        cardbg: '#121d18',
+                        inputbg: '#1b2a23',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background-color: #0a100d;
+            color: #ecfdf5;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a100d;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d4af37;
+            border-radius: 3px;
+        }
+
+        /* Custom Card Selection */
+        .select-card {
+            transition: all 0.25s ease;
+            border: 1px solid #1f352c;
+        }
+        .select-card:hover {
+            border-color: #d4af37;
+            transform: translateY(-2px);
+        }
+        .select-card.active {
+            border-color: #d4af37;
+            background-color: rgba(212, 175, 55, 0.1);
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.2);
+        }
+
+        /* Gold Glow Animation */
+        @keyframes gold-pulse {
+            0%, 100% { box-shadow: 0 0 12px rgba(212, 175, 55, 0.25); }
+            50% { box-shadow: 0 0 24px rgba(212, 175, 55, 0.55); }
+        }
+        .gold-glow {
+            animation: gold-pulse 3s infinite ease-in-out;
+        }
+
+        /* Dark Calendar Icon & Picker for Date Input */
+        input[type="date"] {
+            color-scheme: dark;
+        }
+
+        /* Print styles for slip */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printableSlip, #printableSlip * {
+                visibility: visible;
+            }
+            #printableSlip {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                color: #000;
+                background: #fff !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between items-center bg-darkbg p-3 sm:p-6 text-emerald-100">
+
+    <!-- Header Section -->
+    <header class="w-full max-w-xl mb-4 flex flex-col sm:flex-row items-center justify-between bg-cardbg p-4 sm:p-5 rounded-2xl border border-emerald-800/50 shadow-2xl gap-3">
+        <div class="flex items-center gap-3.5">
+            <!-- Mosque Logo with triple-click hidden admin trigger -->
+            <div id="schoolLogoIcon" class="w-12 h-12 rounded-2xl bg-gradient-to-br from-gold-400 via-gold-500 to-gold-700 flex items-center justify-center text-emerald-950 font-bold text-2xl shadow-lg gold-glow shrink-0 cursor-pointer select-none" title="قوتابخانەی گەیلانی">
+                <i class="fa-solid fa-mosque"></i>
+            </div>
+            <div>
+                <h1 class="font-extrabold text-[19px] sm:text-2xl text-white leading-tight">قوتابخانەی گەیلانی بۆ زانستە شەرعییەکان</h1>
+                <p class="text-xs sm:text-sm text-gold-400 font-bold mt-1">تۆمارکردنی قوتابی تازە • ساڵی خوێندنی ٢٠٢٦ - ٢٠٢٧</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <!-- Hidden by default for students -->
+            <button id="adminLoginBtn" type="button" class="hidden flex items-center gap-2 text-xs sm:text-sm bg-gold-500/10 hover:bg-gold-500/20 text-gold-400 px-3.5 py-2 rounded-xl border border-gold-500/30 transition-all font-bold">
+                <i class="fa-solid fa-user-shield text-base"></i>
+                <span>کۆنترۆڵی بەڕێوەبەر</span>
+            </button>
+            <div class="hidden md:flex items-center gap-2 text-xs sm:text-sm bg-emerald-950/80 px-3.5 py-2 rounded-xl border border-gold-500/30 text-gold-300 font-semibold">
+                <i class="fa-solid fa-clock text-base"></i>
+                <span>دەوام: ١:٣٠ تا ٤:٣٠</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Feature Highlights -->
+    <section class="w-full max-w-xl mb-4 grid grid-cols-3 gap-2 text-center text-xs sm:text-sm">
+        <div class="bg-cardbg border border-emerald-900/60 p-3 rounded-xl">
+            <i class="fa-solid fa-user-tie text-gold-400 text-lg mb-1 block"></i>
+            <span class="text-gray-200 font-bold">مامۆستای بەئەزموون</span>
+        </div>
+        <div class="bg-cardbg border border-emerald-900/60 p-3 rounded-xl">
+            <i class="fa-solid fa-graduation-cap text-gold-400 text-lg mb-1 block"></i>
+            <span class="text-gray-200 font-bold">بڕوانامەی بڕواپێکراو</span>
+        </div>
+        <div class="bg-cardbg border border-emerald-900/60 p-3 rounded-xl">
+            <i class="fa-solid fa-book-quran text-gold-400 text-lg mb-1 block"></i>
+            <span class="text-gray-200 font-bold">زانستە شەرعییەکان</span>
+        </div>
+    </section>
+
+    <!-- Form Card Container -->
+    <main class="w-full max-w-xl bg-cardbg rounded-3xl border border-emerald-800/60 p-6 sm:p-8 shadow-2xl relative overflow-hidden flex-grow flex flex-col justify-between">
+        
+        <div>
+            <!-- Step Counter & Title -->
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <span class="text-xs sm:text-sm font-bold text-emerald-400 block mb-0.5">سیستەمی تۆمارکردنی ئۆنلاین</span>
+                    <h2 id="stepHeaderTitle" class="text-lg sm:text-xl font-extrabold text-white flex items-center gap-2">
+                        <span>کات و شێوازی دەوام</span>
+                    </h2>
+                </div>
+                <div class="flex items-center justify-center w-12 h-12 rounded-2xl bg-inputbg border border-emerald-700/50 shadow-inner">
+                    <span id="stepCounter" class="text-base font-black text-gold-400">1/4</span>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="w-full bg-inputbg h-3 rounded-full overflow-hidden mb-5 p-0.5 border border-emerald-900">
+                <div id="progressBar" class="bg-gradient-to-r from-gold-600 via-gold-400 to-gold-300 h-full rounded-full transition-all duration-500 ease-out" style="width: 25%;"></div>
+            </div>
+
+            <!-- Dynamic Notice Box -->
+            <div id="noticeBox" class="bg-gold-500/10 border border-gold-500/40 rounded-2xl p-4 mb-5 flex items-start gap-3">
+                <i class="fa-solid fa-circle-info text-gold-400 text-xl mt-0.5 shrink-0"></i>
+                <p id="noticeText" class="text-xs sm:text-sm text-gray-100 font-medium leading-relaxed">
+                    دەوامی بەیانیان لە ئێستادا بەردەست نییە. خوێندن تەنها دەوامی دوانیوەڕۆیان دەبێت لە کاتژمێر ١:٣٠ی دوانیوەڕۆ تا ٤:٣٠ی ئێوارە.
+                </p>
+            </div>
+
+            <form id="studentRegistrationForm" onsubmit="return false;" class="space-y-4">
+
+                <!-- STEP 1: کات و شێوازی خوێندن -->
+                <div id="step-1" class="form-step space-y-4">
+                    <p class="text-sm sm:text-base font-bold text-gray-200">کاتی خوێندن هەڵبژێرە:</p>
+
+                    <!-- Morning Shift (Disabled) -->
+                    <label class="select-card rounded-2xl p-4 flex items-start gap-3.5 cursor-not-allowed opacity-60 border-red-900/50 bg-red-950/10 block">
+                        <input type="radio" name="study_shift" value="دەوامی بەیانیان" disabled class="mt-1 accent-gold-500 w-5 h-5">
+                        <div class="flex-1">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="font-bold text-gray-300 text-sm sm:text-base">دەوامی بەیانیان</span>
+                                <span class="text-xs bg-red-900/80 text-red-200 px-2.5 py-1 rounded-full font-bold border border-red-700">لە ئێستادا بەردەست نییە</span>
+                            </div>
+                            <p class="text-xs sm:text-sm text-red-300 font-medium">تێبینی: تۆمارکردن لە دەوامی بەیانیان ڕاگیراوە.</p>
+                        </div>
+                    </label>
+
+                    <!-- Afternoon Shift (Active) -->
+                    <label class="select-card active rounded-2xl p-4 flex items-start gap-3.5 cursor-pointer block border-gold-500 bg-gold-500/10">
+                        <input type="radio" name="study_shift" value="دەوامی دوانیوەڕۆیان (١:٣٠ تا ٤:٣٠)" checked class="mt-1 accent-gold-500 w-5 h-5">
+                        <div class="flex-1">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="font-extrabold text-white text-sm sm:text-base">دەوامی دوانیوەڕۆیان</span>
+                                <span class="text-xs bg-gold-500 text-emerald-950 px-2.5 py-1 rounded-full font-black">چالاک و بەردەست</span>
+                            </div>
+                            <p class="text-xs sm:text-sm text-gold-300 font-bold leading-relaxed">کاتەکانی خوێندن: کاتژمێر ١:٣٠ی دوانیوەڕۆ تا ٤:٣٠ی ئێوارە.</p>
+                        </div>
+                    </label>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                        <div>
+                            <label class="block text-xs sm:text-sm font-bold text-gray-200 mb-1.5" for="qualification">
+                                کۆتا بڕوانامە <span class="text-red-400">*</span>
+                            </label>
+                            <select id="qualification" class="w-full bg-inputbg border border-emerald-800 rounded-xl px-4 py-3.5 text-xs sm:text-sm font-medium text-white focus:outline-none focus:border-gold-500 transition-colors cursor-pointer">
+                                <option value="">بڕوانامەکەت هەڵبژێرە...</option>
+                                <option value="شەشەمی سەرەتایی">شەشەمی سەرەتایی</option>
+                                <option value="پۆلی نۆیەم (ناوەندی)">پۆلی نۆیەم (ناوەندی)</option>
+                                <option value="پۆلی دوانزەیەم (ئامادەیی)">پۆلی دوانزەیەم (ئامادەیی)</option>
+                                <option value="دیپلۆم / پەیمانگا">دیپلۆم / پەیمانگا</option>
+                                <option value="بەکالۆریۆس / زانکۆ">بەکالۆریۆس / زانکۆ</option>
+                                <option value="ماستەر / دکتۆرا">ماستەر / دکتۆرا</option>
+                                <option value="خوێندنی حوجرە">خوێندنی حوجرە</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs sm:text-sm font-bold text-gray-200 mb-1.5" for="specialization">
+                                پسپۆڕی خوێندن <span class="text-red-400">*</span>
+                            </label>
+                            <input type="text" id="specialization" placeholder="نموونە: زانست، ئابووری، گشتی..." 
+                                   class="w-full bg-inputbg border border-emerald-800 rounded-xl px-4 py-3.5 text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gold-500 transition-colors">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 2: زانیاری کەسی قوتابی -->
+                <div id="step-2" class="form-step hidden space-y-4">
+                    <div>
+                        <label class="block text-xs sm:text-sm font-bold text-gray-200 mb-1.5" for="fullName">
+                            ناوی چواری (بەپێی کارتی نیشتمانی) <span class="text-red-400">*</span>
+                        </label>
+                        <div class="relative">
+                            <input type="text" id="fullName" placeholder="نموونە: ئارام ئەحمەد مەحمود عومەر" 
+                                   class="w-full bg-inputbg border border-emerald-800 rounded-xl px-4 py-3.5 text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gold-500 transition-colors">
+                            <i class="fa-regular fa-id-card absolute left-3.5 top-4 text-emerald-500 text-base"></i>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs sm:text-sm font-bold text-gray-200 mb-1.5" for="birthDateDisplay">
+                                بەرواری لەدایکبوون <span class="text-red-400">*</span>
+                            </label>
+                            <div class="relative cursor-pointer" onclick="openDatePicker()">
+                                <input type="text" id="birthDateDisplay" readonly placeholder="ڕۆژ / مانگ / ساڵ" 
+                                       class="w-full bg-inputbg border border-emerald-800 rounded-xl px-4 py-3.5 text-xs sm:text-sm text-white placeholder-gray-400 focus:outline-none focus:border-gold-500 transition-colors cursor-pointer">
+                                <input type="date" id="birthDate" class="absolute opacity-0 pointer-events-none w-0 h-0" onchange="onBirthDateChange(this)">
+                                <i class="fa-regular fa-calendar absolute left-3.5 top-4 text-emerald-500 text-base"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs sm:text-sm font-bold text-gray-200 mb-1.5" for="gender">
+                                ڕەگەز <span class="text-red-400">*</span>
+                            </label>
+                            <select id="gender" class="w-full bg-inputbg border border-emerald-800 rounded-xl px-3.5 py-3.5 text-xs sm:text-sm text-white focus:outline-none focus:border-gold-500 transition-colors cursor-pointer">
+                                <option value="">ڕەگەز هەڵبژێرە...</option>
+                                <option value="نێر">نێر (پیاو)</option>
+                                <option value="مێ">مێ (ئافرەت)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs sm:text-sm font-bold text-gray-200 mb-1.5" for="maritalStatus">
+                                باری خێزانی <span class="text-red-400">*</span>
+                            </label>
+                            <select id="maritalStatus" class="w-full bg-inputbg border border-emerald-800 rounded-xl px-3.5 py-3.5 text-xs sm:text-sm text-white focus:outline-none focus:border-gold-500 transition-colors cursor-pointer">
+                                <option value="">باری خێزانی هەڵبژێرە...</option>
+                                <option value="سەڵت">سەڵت</option>
+                                <option value="خێزاندار">خێزاندار</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs sm:text-sm font-bold text-gray-200 mb-1.5" for="occupation">
+                                پیشە / کاری ئێستا <span class="text-red-400">*</span>
+                            </label>
+                            <input type="text" id="occupation" placeholder="نموونە: مامۆستا، کاسب، فەرمانبەر، فێرخواز..." 
+                                   class="w-full bg-inputbg border border-emerald-800 rounded-xl px-3.5 py-3.5 text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gold-500 transition-colors">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs sm:text-sm font-bold text-gray-200 mb-1.5" for="islamicKnowledge">
+                            ئاستی زانیاری لە زانستە شەرعییەکان <span class="text-red-400">*</span>
+                        </label>
+                        <select id="islamicKnowledge" class="w-full bg-inputbg border border-emerald-800 rounded-xl px-3.5 py-3.5 text-xs sm:text-sm text-white focus:outline-none focus:border-gold-500 transition-colors cursor-pointer">
+                            <option value="">ئاست هەڵبژێرە...</option>
+                            <option value="دەستپێک / هیچ پاشخانێکم نییە">دەستپێک (هیچ پاشخانێکم نییە)</option>
+                            <option value="سەرەتایی (نوێژ و قورئان خوێندن)">سەرەتایی (نوێژ و قورئان خوێندن)</option>
+                            <option value="مامناوەند (خوێندنی هەندێک پەرتووک)">مامناوەند (خوێندنی پەرتووکی شەرعی)</option>
+                            <option value="باش / پێشکەوتوو">باش / پێشکەوتوو</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- STEP 3: زانیاری پەیوەندیکردن -->
+                <div id="step-3" class="form-step hidden space-y-4">
+                    <div>
+                        <label class="block text-xs sm:text-sm font-bold text-gray-200 mb-1.5" for="phoneNumber">
+                            ژمارەی مۆبایل (چالاک) <span class="text-red-400">*</span>
+                        </label>
+                        <div class="relative">
+                            <input type="tel" id="phoneNumber" dir="ltr" placeholder="0770 000 0000" 
+                                   class="w-full bg-inputbg border border-emerald-800 rounded-xl px-4 py-3.5 text-xs sm:text-sm text-white text-right placeholder-gray-500 focus:outline-none focus:border-gold-500 transition-colors">
+                            <i class="fa-solid fa-phone absolute left-3.5 top-4 text-emerald-500 text-base"></i>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs sm:text-sm font-bold text-gray-200 mb-1.5" for="fullAddress">
+                            ناونیشان (پارێزگا / شار / گەڕەک) <span class="text-red-400">*</span>
+                        </label>
+                        <div class="relative">
+                            <input type="text" id="fullAddress" placeholder="نموونە: سلێمانی - قەڵادزێ - گەڕەکی فەرمانبەران" 
+                                   class="w-full bg-inputbg border border-emerald-800 rounded-xl px-4 py-3.5 text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gold-500 transition-colors">
+                            <i class="fa-solid fa-location-dot absolute left-3.5 top-4 text-emerald-500 text-base"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 4: پێداچوونەوە و ناردن -->
+                <div id="step-4" class="form-step hidden space-y-4">
+                    <div class="bg-inputbg rounded-2xl p-4 border border-emerald-800/80 space-y-3">
+                        <h3 class="text-xs sm:text-sm font-extrabold text-gold-400 border-b border-emerald-800/60 pb-2 flex items-center justify-between">
+                            <span>پوختەی زانیارییەکانی قوتابی</span>
+                            <i class="fa-solid fa-graduation-cap text-base"></i>
+                        </h3>
+
+                        <div id="summaryContainer" class="text-xs sm:text-sm space-y-2 text-gray-200">
+                            <!-- Populated via JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="bg-emerald-950/60 p-4 rounded-2xl border border-emerald-800/60 space-y-2">
+                        <p class="text-xs sm:text-sm font-bold text-gold-400">کاتەکانی دەوامی ڕەسمی:</p>
+                        <p class="text-xs sm:text-sm text-gray-200 font-medium">دوانیوەڕۆیان: کاتژمێر ١:٣٠ی دوانیوەڕۆ تا ٤:٣٠ی ئێوارە.</p>
+                    </div>
+
+                    <label class="flex items-start gap-3 cursor-pointer pt-2 bg-emerald-950/40 p-3.5 rounded-2xl border border-emerald-800/50">
+                        <input type="checkbox" id="termsAgreement" class="mt-1 accent-gold-500 w-5 h-5 rounded shrink-0">
+                        <span class="text-xs sm:text-sm text-gray-100 font-semibold leading-relaxed">
+                            بەڵێننامەی پابەندبوون: بەڵێن دەدەم بە پابەندبوون بە دەوام و سەرجەم ڕێسا و یاساکانی قوتابخانەی گەیلانی بۆ زانستە شەرعییەکان، و زانیارییە تۆمارکراوەکان تەواو دروستن.
+                        </span>
+                    </label>
+                </div>
+
+            </form>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="pt-5 border-t border-emerald-900/80 flex items-center justify-between gap-3 mt-5">
+            <button type="button" id="prevBtn" disabled 
+                    class="px-5 py-3.5 rounded-xl text-xs sm:text-sm font-extrabold bg-inputbg text-gray-400 border border-emerald-800 disabled:opacity-30 disabled:cursor-not-allowed hover:text-white transition-all">
+                پێشتر
+            </button>
+
+            <button type="button" id="nextBtn" 
+                    class="flex-1 py-3.5 px-6 rounded-xl text-xs sm:text-sm font-black bg-gradient-to-r from-gold-500 via-gold-400 to-gold-500 text-emerald-950 shadow-lg shadow-gold-500/20 hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                <span id="nextBtnText">دواتر</span>
+                <i id="nextBtnIcon" class="fa-solid fa-arrow-left text-xs sm:text-sm"></i>
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Footer Copyright -->
+    <footer class="mt-4 text-center text-xs text-emerald-500/90 font-bold">
+        قوتابخانەی گەیلانی بۆ زانستە شەرعییەکان © ٢٠٢٦ - ٢٠٢٧ • هەموو مافەکانی پارێزراوە
+    </footer>
+
+    <!-- Custom Modal Dialog with Printable Slip -->
+    <div id="customModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div id="modalBox" class="bg-cardbg border border-emerald-700 w-full max-w-md rounded-3xl p-6 text-center space-y-4 shadow-2xl transform scale-95 transition-transform duration-300 relative max-h-[90vh] overflow-y-auto">
+            
+            <div id="modalIcon" class="w-16 h-16 rounded-full bg-gold-500/10 text-gold-400 flex items-center justify-center text-3xl mx-auto border border-gold-500/30 gold-glow">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            
+            <h3 id="modalTitle" class="text-lg sm:text-xl font-extrabold text-white">ئاگاداری</h3>
+            <p id="modalMessage" class="text-xs sm:text-sm text-gray-200 font-medium leading-relaxed whitespace-pre-line"></p>
+
+            <!-- Printable & PDF Report Slip (Guaranteed 1 Single Page Layout) -->
+            <div id="printableSlip" class="hidden bg-white text-gray-900 p-5 rounded-2xl border-2 border-gold-500 text-right space-y-3 text-xs sm:text-sm shadow-xl" style="width: 100%; max-width: 600px; margin: 0 auto;">
+                <div class="text-center border-b-2 border-emerald-900 pb-3">
+                    <div class="flex items-center justify-center gap-2 mb-1">
+                        <i class="fa-solid fa-mosque text-emerald-900 text-2xl"></i>
+                        <h4 class="font-extrabold text-base sm:text-lg text-emerald-950">قوتابخانەی گەیلانی بۆ زانستە شەرعییەکان</h4>
+                    </div>
+                    <p class="text-xs text-emerald-800 font-bold">ڕاپۆرتی فەرمی تۆمارکردنی قوتابی • ساڵی خوێندنی ٢٠٢٦ - ٢٠٢٧</p>
+                </div>
+                <div id="slipDetails" class="space-y-2 py-1"></div>
+                <div class="border-t border-gray-300 pt-3 flex justify-between items-center text-xs text-gray-700">
+                    <span class="font-bold">واژۆی بەڕێوەبەرایەتی / مۆهر</span>
+                    <span>بەروار: <span id="slipDate"></span></span>
+                </div>
+                <p class="text-[10px] text-center text-emerald-900 font-bold pt-1.5 bg-gold-50 p-2 rounded-lg border border-gold-300">ئەم ڕاپۆرتە بە شێوەی ئۆتۆماتیکی لە سیستەمی قوتابخانەی گەیلانی دەرچووە و لەیەک لاپەڕەدا پێکهاتووە.</p>
+            </div>
+
+            <div class="flex gap-2 pt-2">
+                <button id="pdfBtn" type="button" class="hidden flex-1 py-3 rounded-xl bg-gradient-to-r from-red-600 to-red-700 text-white font-black text-xs sm:text-sm hover:brightness-110 transition-all shadow-lg flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-file-pdf text-base"></i> وەرگرتنی ڕاپۆرت بە PDF
+                </button>
+                <button id="closeModalBtn" type="button" class="flex-1 py-3 rounded-xl bg-gold-500 text-emerald-950 font-black text-xs sm:text-sm hover:bg-gold-400 transition-colors">
+                    باشە
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden Admin Passcode Modal -->
+    <div id="adminAuthModal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-cardbg border border-gold-500/40 w-full max-w-sm rounded-3xl p-6 text-center space-y-4 shadow-2xl">
+            <div class="w-14 h-14 rounded-full bg-gold-500/10 text-gold-400 flex items-center justify-center text-2xl mx-auto border border-gold-500/30 gold-glow">
+                <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <h3 class="text-base sm:text-lg font-extrabold text-white">چوونەژوورەوەی بەڕێوەبەر</h3>
+            <p class="text-xs text-gray-300 font-medium">تکایە وشەی تێپەڕی (پاسۆردی) بەڕێوەبەر بنووسە:</p>
+            <div>
+                <input type="password" id="adminPasswordInput" placeholder="••••" class="w-full bg-inputbg border border-emerald-800 rounded-xl px-4 py-3 text-center text-gold-400 font-bold text-lg focus:outline-none focus:border-gold-500 font-mono tracking-widest placeholder-gray-600">
+                <p id="adminAuthError" class="text-xs text-red-400 hidden font-bold mt-2 flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span>وشەی تێپەڕ هەڵەیە!</span>
+                </p>
+            </div>
+            <div class="flex gap-2 pt-1">
+                <button type="button" id="adminAuthSubmitBtn" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-gold-500 to-gold-600 text-emerald-950 font-black text-xs sm:text-sm hover:brightness-110 transition-all shadow-md">
+                    چوونەژوورەوە
+                </button>
+                <button type="button" id="adminAuthCloseBtn" class="px-4 py-3 rounded-xl bg-inputbg text-gray-300 font-bold text-xs sm:text-sm border border-emerald-800 hover:text-white transition-colors">
+                    داخستن
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Data Dashboard Modal -->
+    <div id="adminModal" class="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 z-50 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-cardbg border border-emerald-700 w-full max-w-5xl rounded-3xl p-5 sm:p-6 text-right space-y-4 shadow-2xl max-h-[90vh] flex flex-col justify-between">
+            <div>
+                <!-- Admin Header -->
+                <div class="flex items-center justify-between border-b border-emerald-800/80 pb-3 mb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-gold-500/20 text-gold-400 flex items-center justify-center text-xl border border-gold-500/30">
+                            <i class="fa-solid fa-users-gear"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base sm:text-lg font-extrabold text-white">داشبۆردی بەڕێوەبەرایەتی - قوتابییە تۆمارکراوەکان</h3>
+                            <p class="text-xs text-emerald-400">سەرجەم زانیارییە تۆمارکراوەکان</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button id="logoutAdminBtn" title="شاردنەوەی بەڕێوەبەر" class="text-xs text-red-300 hover:text-red-100 bg-red-950/60 hover:bg-red-900 border border-red-800/80 px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition-colors font-bold">
+                            <i class="fa-solid fa-lock text-xs"></i>
+                            <span>دەرچوون و شاردنەوە</span>
+                        </button>
+                        <button id="closeAdminBtn" class="text-gray-400 hover:text-white p-2 text-xl">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Admin Action Toolbar -->
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-3 mb-4">
+                    <div class="relative w-full sm:w-72">
+                        <input type="text" id="searchAdminInput" placeholder="گەڕان بەپێی ناو یان مۆبایل..." class="w-full bg-inputbg border border-emerald-800 rounded-xl pr-9 pl-4 py-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-gold-500">
+                        <i class="fa-solid fa-magnifying-glass absolute right-3 top-3 text-emerald-500 text-xs"></i>
+                    </div>
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <button id="exportCsvBtn" type="button" class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition-colors">
+                            <i class="fa-solid fa-file-excel"></i>
+                            <span>داونلۆدکردنی فایلی Excel (CSV)</span>
+                        </button>
+                        <button id="clearDataBtn" type="button" class="px-3 py-2.5 rounded-xl bg-red-950/80 hover:bg-red-900 text-red-300 font-bold text-xs border border-red-800 flex items-center justify-center gap-1.5 transition-colors" title="سڕینەوەی هەموو زانیارییەکان">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Table Container -->
+                <div class="overflow-x-auto rounded-2xl border border-emerald-900 bg-emerald-950/40 max-h-[50vh]">
+                    <table class="w-full text-right text-xs sm:text-sm text-gray-200">
+                        <thead class="bg-inputbg text-gold-400 font-bold border-b border-emerald-800 sticky top-0">
+                            <tr>
+                                <th class="p-3">کۆد</th>
+                                <th class="p-3">ناوی چواری</th>
+                                <th class="p-3">ڕەگەز</th>
+                                <th class="p-3">لەدایکبوون</th>
+                                <th class="p-3">بڕوانامە / پسپۆڕی</th>
+                                <th class="p-3">باری خێزانی</th>
+                                <th class="p-3">پیشە</th>
+                                <th class="p-3">ئاستی شەرعی</th>
+                                <th class="p-3">مۆبایل</th>
+                                <th class="p-3">ناونیشان</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminTableBody" class="divide-y divide-emerald-900/60">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Footer Stats -->
+            <div class="pt-3 border-t border-emerald-900/80 flex justify-between items-center text-xs sm:text-sm text-gray-300 font-semibold">
+                <span>کۆی گشتی قوتابییان: <strong id="totalCount" class="text-gold-400 font-black">0</strong> قوتابی</span>
+                <span class="text-emerald-400">دەوامی دوانیوەڕۆیان (١:٣٠ - ٤:٣٠)</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 4;
+
+        function openDatePicker() {
+            const dateInput = document.getElementById('birthDate');
+            if (dateInput.showPicker) {
+                try {
+                    dateInput.showPicker();
+                } catch(e) {
+                    dateInput.click();
+                }
+            } else {
+                dateInput.click();
+            }
+        }
+
+        function onBirthDateChange(input) {
+            const displayInput = document.getElementById('birthDateDisplay');
+            if (input.value) {
+                const parts = input.value.split('-');
+                if (parts.length === 3) {
+                    displayInput.value = `${parts[2]} / ${parts[1]} / ${parts[0]}`;
+                } else {
+                    displayInput.value = input.value;
+                }
+            } else {
+                displayInput.value = '';
+            }
+        }
+
+        function formatDisplayDate(dateStr) {
+            if (!dateStr) return "دیاری نەکراوە";
+            if (dateStr.includes('-')) {
+                const parts = dateStr.split('-');
+                if (parts.length === 3) {
+                    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+                }
+            }
+            return dateStr;
+        }
+
+        const stepTitles = {
+            1: "کات و شێوازی دەوام",
+            2: "زانیاری کەسی قوتابی",
+            3: "زانیاری پەیوەندیکردن",
+            4: "پێداچوونەوە و بەڵێننامە"
+        };
+
+        const noticeTexts = {
+            1: "دەوامی بەیانیان لە ئێستادا بەردەست نییە. خوێندن تەنها دەوامی دوانیوەڕۆیان دەبێت لە کاتژمێر ١:٣٠ی دوانیوەڕۆ تا ٤:٣٠ی ئێوارە.",
+            2: "تکایە ناوی تەواوت وەک ناو کارتی نیشتمانی تۆمار بکە بۆ دروستکردنی بڕوانامەی بڕواپێکراو.",
+            3: "ژمارەی مۆبایلەکەت زۆر گرنگە بۆ ئاگادارکردنەوەت لە کاتی دەستپێکردنی وانەکان.",
+            4: "تکایە پاش پێداچوونەوە لە سەرجەم زانیارییەکان، دوگمەی تۆمارکردن داگرە."
+        };
+
+        function updateStepUI() {
+            document.querySelectorAll('.form-step').forEach((el, index) => {
+                if (index + 1 === currentStep) {
+                    el.classList.remove('hidden');
+                } else {
+                    el.classList.add('hidden');
+                }
+            });
+
+            document.getElementById('stepCounter').innerText = `${currentStep}/${totalSteps}`;
+            document.getElementById('stepHeaderTitle').innerText = stepTitles[currentStep];
+            document.getElementById('noticeText').innerText = noticeTexts[currentStep];
+            
+            const percentage = (currentStep / totalSteps) * 100;
+            document.getElementById('progressBar').style.width = `${percentage}%`;
+
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtnText = document.getElementById('nextBtnText');
+            const nextBtnIcon = document.getElementById('nextBtnIcon');
+
+            if (currentStep === 1) {
+                prevBtn.disabled = true;
+            } else {
+                prevBtn.disabled = false;
+            }
+
+            if (currentStep === totalSteps) {
+                nextBtnText.innerText = "تۆمارکردنی کۆتایی";
+                nextBtnIcon.className = "fa-solid fa-circle-check text-sm";
+                populateSummary();
+            } else {
+                nextBtnText.innerText = "دواتر";
+                nextBtnIcon.className = "fa-solid fa-arrow-left text-xs sm:text-sm";
+            }
+        }
+
+        function navigateStep(direction) {
+            if (direction === 1) {
+                if (!validateCurrentStep()) return;
+            }
+            
+            currentStep += direction;
+            if (currentStep < 1) currentStep = 1;
+            if (currentStep > totalSteps) currentStep = totalSteps;
+
+            updateStepUI();
+        }
+
+        function validateCurrentStep() {
+            if (currentStep === 1) {
+                const qual = document.getElementById('qualification').value;
+                const spec = document.getElementById('specialization').value.trim();
+
+                if (!qual) {
+                    showModal("تکایە کۆتا بڕوانامەی بەدەستهاتوو هەڵبژێرە.", "fa-graduation-cap", "تێبینی بڕوانامە");
+                    return false;
+                }
+                if (!spec) {
+                    showModal("تکایە پسپۆڕی خوێندن بنووسە.", "fa-book", "تێبینی پسپۆڕی");
+                    return false;
+                }
+            }
+
+            if (currentStep === 2) {
+                const fullName = document.getElementById('fullName').value.trim();
+                const birthDate = document.getElementById('birthDate').value;
+                const gender = document.getElementById('gender').value;
+                const maritalStatus = document.getElementById('maritalStatus').value;
+                const occupation = document.getElementById('occupation').value.trim();
+                const islamicKnowledge = document.getElementById('islamicKnowledge').value;
+
+                if (!fullName || fullName.split(" ").filter(n => n).length < 4) {
+                    showModal("تکایە ناوی تەواوی قوتابی بە چواری (چوار ناو) بنووسە.", "fa-user-xmark", "ناوی ناتەواو");
+                    return false;
+                }
+                if (!birthDate) {
+                    showModal("تکایە بەرواری لەدایکبوون هەڵبژێرە.", "fa-calendar-xmark", "بەرواری لەدایکبوون");
+                    return false;
+                }
+                if (!gender) {
+                    showModal("تکایە ڕەگەز دیاری بکە.", "fa-venus-mars", "دیاریکردنی ڕەگەز");
+                    return false;
+                }
+                if (!maritalStatus) {
+                    showModal("تکایە باری خێزانی هەڵبژێرە.", "fa-ring", "باری خێزانی");
+                    return false;
+                }
+                if (!occupation) {
+                    showModal("تکایە پیشە یان کاری ئێستات بنووسە.", "fa-briefcase", "پیشەی قوتابی");
+                    return false;
+                }
+                if (!islamicKnowledge) {
+                    showModal("تکایە ئاستی زانیاری لە زانستە شەرعییەکان هەڵبژێرە.", "fa-book-quran", "ئاستی زانیاری شەرعی");
+                    return false;
+                }
+            }
+
+            if (currentStep === 3) {
+                const phone = document.getElementById('phoneNumber').value.trim();
+                const address = document.getElementById('fullAddress').value.trim();
+
+                if (!phone || phone.length < 10) {
+                    showModal("تکایە ژمارەی مۆبایل بە دروستی بنووسە (لانی کەم ١٠ ژمارە).", "fa-phone", "ژمارەی مۆبایل");
+                    return false;
+                }
+                if (!address) {
+                    showModal("تکایە ناونیشانی نیشتەجێبوون بە تەواوی بنووسە.", "fa-location-dot", "ناونیشان");
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        function populateSummary() {
+            const shift = "دەوامی دوانیوەڕۆیان (١:٣٠ تا ٤:٣٠)";
+            const qual = document.getElementById('qualification').value || "دیاری نەکراوە";
+            const spec = document.getElementById('specialization').value || "دیاری نەکراوە";
+            const fullName = document.getElementById('fullName').value || "دیاری نەکراوە";
+            const rawBirthDate = document.getElementById('birthDate').value;
+            const birthDate = formatDisplayDate(rawBirthDate);
+            const gender = document.getElementById('gender').value || "دیاری نەکراوە";
+            const maritalStatus = document.getElementById('maritalStatus').value || "دیاری نەکراوە";
+            const occupation = document.getElementById('occupation').value || "دیاری نەکراوە";
+            const islamicKnowledge = document.getElementById('islamicKnowledge').value || "دیاری نەکراوە";
+            const phone = document.getElementById('phoneNumber').value || "دیاری نەکراوە";
+            const address = document.getElementById('fullAddress').value || "دیاری نەکراوە";
+
+            document.getElementById('summaryContainer').innerHTML = `
+                <div class="flex justify-between py-1.5 border-b border-emerald-900">
+                    <span class="text-gray-400">شێوازی دەوام:</span>
+                    <span class="font-bold text-gold-400">${shift}</span>
+                </div>
+                <div class="flex justify-between py-1.5 border-b border-emerald-900">
+                    <span class="text-gray-400">ناوی چواری:</span>
+                    <span class="font-extrabold text-white">${fullName}</span>
+                </div>
+                <div class="flex justify-between py-1.5 border-b border-emerald-900">
+                    <span class="text-gray-400">ڕەگەز / باری خێزانی:</span>
+                    <span class="text-gray-200">${gender} (${maritalStatus})</span>
+                </div>
+                <div class="flex justify-between py-1.5 border-b border-emerald-900">
+                    <span class="text-gray-400">پیشە / کاری ئێستا:</span>
+                    <span class="text-gray-200 font-semibold">${occupation}</span>
+                </div>
+                <div class="flex justify-between py-1.5 border-b border-emerald-900">
+                    <span class="text-gray-400">بەرواری لەدایکبوون:</span>
+                    <span class="text-gray-200">${birthDate}</span>
+                </div>
+                <div class="flex justify-between py-1.5 border-b border-emerald-900">
+                    <span class="text-gray-400">بڕوانامە / پسپۆڕی:</span>
+                    <span class="text-gray-200">${qual} - ${spec}</span>
+                </div>
+                <div class="flex justify-between py-1.5 border-b border-emerald-900">
+                    <span class="text-gray-400">ئاستی زانیاری شەرعی:</span>
+                    <span class="text-gold-300 font-bold">${islamicKnowledge}</span>
+                </div>
+                <div class="flex justify-between py-1.5 border-b border-emerald-900">
+                    <span class="text-gray-400">ژمارەی مۆبایل:</span>
+                    <span class="font-mono text-gold-400 font-bold" dir="ltr">${phone}</span>
+                </div>
+                <div class="flex justify-between py-1.5">
+                    <span class="text-gray-400">ناونیشان:</span>
+                    <span class="text-gray-200">${address}</span>
+                </div>
+            `;
+        }
+
+        function showModal(message, iconClass = "fa-circle-info", title = "ئاگاداری", isSuccess = false, registrationCode = "") {
+            const modal = document.getElementById('customModal');
+            const modalBox = document.getElementById('modalBox');
+            const printableSlip = document.getElementById('printableSlip');
+            const pdfBtn = document.getElementById('pdfBtn');
+
+            document.getElementById('modalMessage').innerText = message;
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalIcon').innerHTML = `<i class="fa-solid ${iconClass}"></i>`;
+
+            if (isSuccess) {
+                printableSlip.classList.remove('hidden');
+                pdfBtn.classList.remove('hidden');
+
+                const shift = "دەوامی دوانیوەڕۆیان (١:٣٠ تا ٤:٣٠)";
+                const qual = document.getElementById('qualification').value || "";
+                const spec = document.getElementById('specialization').value || "";
+                const fullName = document.getElementById('fullName').value || "";
+                const rawBirthDate = document.getElementById('birthDate').value || "";
+                const birthDate = formatDisplayDate(rawBirthDate);
+                const gender = document.getElementById('gender').value || "";
+                const maritalStatus = document.getElementById('maritalStatus').value || "";
+                const occupation = document.getElementById('occupation').value || "";
+                const islamicKnowledge = document.getElementById('islamicKnowledge').value || "";
+                const phone = document.getElementById('phoneNumber').value || "";
+                const address = document.getElementById('fullAddress').value || "";
+                const currentDate = new Date().toLocaleDateString('en-GB');
+
+                document.getElementById('slipDate').innerText = currentDate;
+
+                document.getElementById('slipDetails').innerHTML = `
+                    <div class="grid grid-cols-2 gap-2 bg-gray-50 p-3 rounded-xl border border-gray-200 text-xs text-gray-800">
+                        <div><strong>کۆدی تۆمارکردن:</strong> <span class="font-mono text-emerald-900 font-extrabold">${registrationCode}</span></div>
+                        <div><strong>جۆری دەوام:</strong> <span class="text-emerald-900 font-bold">${shift}</span></div>
+                        <div class="col-span-2 border-t border-gray-200 pt-1.5"><strong>ناوی چواری قوتابی:</strong> <span class="text-gray-900 font-extrabold text-sm">${fullName}</span></div>
+                        <div><strong>ڕەگەز:</strong> ${gender}</div>
+                        <div><strong>باری خێزانی:</strong> ${maritalStatus}</div>
+                        <div><strong>پیشە:</strong> <span class="font-bold text-gray-900">${occupation}</span></div>
+                        <div><strong>بەرواری لەدایکبوون:</strong> ${birthDate}</div>
+                        <div><strong>ژمارەی مۆبایل:</strong> <span dir="ltr" class="font-mono font-bold">${phone}</span></div>
+                        <div class="col-span-2 border-t border-gray-200 pt-1.5"><strong>بڕوانامە و پسپۆڕی:</strong> ${qual} - ${spec}</div>
+                        <div class="col-span-2"><strong>ئاستی زانیاری شەرعی:</strong> <span class="text-emerald-900 font-bold">${islamicKnowledge}</span></div>
+                        <div class="col-span-2"><strong>ناونیشانی تەواو:</strong> ${address}</div>
+                    </div>
+                `;
+            } else {
+                printableSlip.classList.add('hidden');
+                pdfBtn.classList.add('hidden');
+            }
+
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modalBox.classList.remove('scale-95');
+            modalBox.classList.add('scale-100');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('customModal');
+            const modalBox = document.getElementById('modalBox');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            modalBox.classList.remove('scale-100');
+            modalBox.classList.add('scale-95');
+        }
+
+        function saveRegistrationData(code) {
+            const shift = "دەوامی دوانیوەڕۆیان (١:٣٠ تا ٤:٣٠)";
+            const qual = document.getElementById('qualification').value || "";
+            const spec = document.getElementById('specialization').value || "";
+            const fullName = document.getElementById('fullName').value || "";
+            const rawBirthDate = document.getElementById('birthDate').value || "";
+            const birthDate = formatDisplayDate(rawBirthDate);
+            const gender = document.getElementById('gender').value || "";
+            const maritalStatus = document.getElementById('maritalStatus').value || "";
+            const occupation = document.getElementById('occupation').value || "";
+            const islamicKnowledge = document.getElementById('islamicKnowledge').value || "";
+            const phone = document.getElementById('phoneNumber').value || "";
+            const address = document.getElementById('fullAddress').value || "";
+
+            const record = {
+                code,
+                shift,
+                qual,
+                spec,
+                fullName,
+                birthDate,
+                gender,
+                maritalStatus,
+                occupation,
+                islamicKnowledge,
+                phone,
+                address,
+                date: new Date().toLocaleDateString('en-GB')
+            };
+
+            let existing = JSON.parse(localStorage.getItem('gaylani_registrations') || "[]");
+            existing.unshift(record);
+            localStorage.setItem('gaylani_registrations', JSON.stringify(existing));
+        }
+
+        function renderAdminTable(filterText = "") {
+            const data = JSON.parse(localStorage.getItem('gaylani_registrations') || "[]");
+            const tbody = document.getElementById('adminTableBody');
+            document.getElementById('totalCount').innerText = data.length;
+
+            const filtered = data.filter(item => {
+                const search = filterText.toLowerCase();
+                return item.fullName.toLowerCase().includes(search) || 
+                       item.phone.includes(search) || 
+                       item.code.toLowerCase().includes(search);
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-gray-400 font-bold">هیچ قوتابییەک تۆمار نەکراوە یان نەدۆزرایەوە.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(item => `
+                <tr class="hover:bg-emerald-900/30 transition-colors">
+                    <td class="p-3 font-mono font-bold text-gold-400">${item.code}</td>
+                    <td class="p-3 font-extrabold text-white">${item.fullName}</td>
+                    <td class="p-3 text-gray-200">${item.gender}</td>
+                    <td class="p-3 text-gray-200">${item.birthDate}</td>
+                    <td class="p-3 text-gray-200">${item.qual} (${item.spec})</td>
+                    <td class="p-3 text-gray-200">${item.maritalStatus}</td>
+                    <td class="p-3 text-gray-200">${item.occupation || '-'}</td>
+                    <td class="p-3 text-gold-300 font-semibold">${item.islamicKnowledge}</td>
+                    <td class="p-3 font-mono font-bold text-gold-400" dir="ltr">${item.phone}</td>
+                    <td class="p-3 text-gray-200">${item.address}</td>
+                </tr>
+            `).join('');
+        }
+
+        function exportToCSV() {
+            const data = JSON.parse(localStorage.getItem('gaylani_registrations') || "[]");
+            if (data.length === 0) {
+                showModal("هیچ داتایەک بۆ داونلۆدکردن نییە!", "fa-circle-info", "ئاگاداری");
+                return;
+            }
+
+            let csvContent = "\uFEFF"; // UTF-8 BOM for Kurdish/Arabic support in Excel
+            csvContent += "کۆد,ناوی چواری,ڕەگەز,لەدایکبوون,بڕوانامە,پسپۆڕی,باری خێزانی,پیشە,ئاستی شەرعی,مۆبایل,ناونیشان,بەروار\n";
+
+            data.forEach(row => {
+                csvContent += `"${row.code}","${row.fullName}","${row.gender}","${row.birthDate}","${row.qual}","${row.spec}","${row.maritalStatus}","${row.occupation || ''}","${row.islamicKnowledge}","${row.phone}","${row.address}","${row.date}"\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Gaylani_Students_${new Date().toISOString().slice(0,10)}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            const ADMIN_PASSCODE = "9091"; // وشەی تێپەڕی بەڕێوەبەر
+
+            function checkAdminAccess() {
+                const isAdmin = localStorage.getItem('gaylani_is_admin') === 'true';
+                const urlParams = new URLSearchParams(window.location.search);
+                if (isAdmin || urlParams.has('admin')) {
+                    enableAdminMode();
+                }
+            }
+
+            function enableAdminMode() {
+                localStorage.setItem('gaylani_is_admin', 'true');
+                const adminBtn = document.getElementById('adminLoginBtn');
+                if (adminBtn) adminBtn.classList.remove('hidden');
+            }
+
+            function disableAdminMode() {
+                localStorage.removeItem('gaylani_is_admin');
+                const adminBtn = document.getElementById('adminLoginBtn');
+                if (adminBtn) adminBtn.classList.add('hidden');
+                const adminModal = document.getElementById('adminModal');
+                if (adminModal) adminModal.classList.add('opacity-0', 'pointer-events-none');
+            }
+
+            function openAuthModal() {
+                const modal = document.getElementById('adminAuthModal');
+                const passInput = document.getElementById('adminPasswordInput');
+                const errorMsg = document.getElementById('adminAuthError');
+                passInput.value = '';
+                errorMsg.classList.add('hidden');
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                setTimeout(() => passInput.focus(), 150);
+            }
+
+            function closeAuthModal() {
+                const modal = document.getElementById('adminAuthModal');
+                modal.classList.add('opacity-0', 'pointer-events-none');
+            }
+
+            function submitAdminAuth() {
+                const passInput = document.getElementById('adminPasswordInput');
+                const errorMsg = document.getElementById('adminAuthError');
+                if (passInput.value === ADMIN_PASSCODE) {
+                    enableAdminMode();
+                    closeAuthModal();
+                    renderAdminTable();
+                    document.getElementById('adminModal').classList.remove('opacity-0', 'pointer-events-none');
+                } else {
+                    errorMsg.classList.remove('hidden');
+                }
+            }
+
+            // Triple-click on Mosque logo trigger
+            let logoClickCount = 0;
+            let logoClickTimer = null;
+            const logoIcon = document.getElementById('schoolLogoIcon');
+            if (logoIcon) {
+                logoIcon.addEventListener('click', function() {
+                    logoClickCount++;
+                    clearTimeout(logoClickTimer);
+                    if (logoClickCount >= 3) {
+                        logoClickCount = 0;
+                        openAuthModal();
+                    } else {
+                        logoClickTimer = setTimeout(() => { logoClickCount = 0; }, 1200);
+                    }
+                });
+            }
+
+            // Keyboard shortcut trigger: Ctrl + Shift + A
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a' || e.key === 'ش')) {
+                    e.preventDefault();
+                    openAuthModal();
+                }
+            });
+
+            // Auth modal buttons
+            document.getElementById('adminAuthSubmitBtn').addEventListener('click', submitAdminAuth);
+            document.getElementById('adminAuthCloseBtn').addEventListener('click', closeAuthModal);
+            document.getElementById('adminPasswordInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') submitAdminAuth();
+            });
+
+            // Logout & Hide button
+            document.getElementById('logoutAdminBtn').addEventListener('click', function() {
+                disableAdminMode();
+            });
+
+            // Check admin status on load
+            checkAdminAccess();
+
+            document.getElementById('prevBtn').addEventListener('click', function() {
+                navigateStep(-1);
+            });
+
+            document.getElementById('nextBtn').addEventListener('click', function() {
+                if (currentStep === totalSteps) {
+                    const isAgreed = document.getElementById('termsAgreement').checked;
+                    if (!isAgreed) {
+                        showModal("تکایە خاڵی بەڵێننامەی پابەندبوون بە دەوام و ڕێساکانی قوتابخانە هەڵبژێرە.", "fa-circle-exclamation", "بەڵێننامەی قوتابخانە");
+                        return;
+                    }
+                    
+                    const randomCode = "GAYLANI-2026-" + Math.floor(1000 + Math.random() * 9000);
+                    saveRegistrationData(randomCode);
+
+                    showModal(
+                        "داواکارییەکەت بەسەرکەوتوویی لە قوتابخانەی گەیلانی بۆ زانستە شەرعییەکان تۆمارکرا بۆ دەوامی دوانیوەڕۆیان (١:٣٠ تا ٤:٣٠).\nسەرکەوتوو و بەختەوەر بن.", 
+                        "fa-circle-check text-gold-400", 
+                        "تۆمارکردن بەسەرکەوتوویی ئەنجامدرا",
+                        true,
+                        randomCode
+                    );
+                } else {
+                    navigateStep(1);
+                }
+            });
+
+            // Close modal handler
+            document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+
+            // PDF Download handler using html2pdf (All info in 1 single page)
+            document.getElementById('pdfBtn').addEventListener('click', function() {
+                const element = document.getElementById('printableSlip');
+                const opt = {
+                    margin:       10,
+                    filename:     `Gaylani_Student_Report_${Date.now()}.pdf`,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true },
+                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+
+                html2pdf().from(element).set(opt).save().catch(err => {
+                    console.error("PDF Generation Error:", err);
+                    showModal("کێشەیەک ڕوویدا لە دروستکردنی PDF.", "fa-circle-exclamation", "هەڵە");
+                });
+            });
+
+            // Admin Panel listeners
+            document.getElementById('adminLoginBtn').addEventListener('click', function() {
+                renderAdminTable();
+                const modal = document.getElementById('adminModal');
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+            });
+
+            document.getElementById('closeAdminBtn').addEventListener('click', function() {
+                const modal = document.getElementById('adminModal');
+                modal.classList.add('opacity-0', 'pointer-events-none');
+            });
+
+            document.getElementById('searchAdminInput').addEventListener('input', function(e) {
+                renderAdminTable(e.target.value);
+            });
+
+            document.getElementById('exportCsvBtn').addEventListener('click', exportToCSV);
+
+            document.getElementById('clearDataBtn').addEventListener('click', function() {
+                if (confirm("دڵنیایت لە سڕینەوەی سەرجەم زانیارییە تۆمارکراوەکان؟ ئەم کردارە ناگەڕێندرێتەوە.")) {
+                    localStorage.removeItem('gaylani_registrations');
+                    renderAdminTable();
+                }
+            });
+
+        });
+    </script>
+</body>
+</html>

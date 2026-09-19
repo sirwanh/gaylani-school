@@ -507,7 +507,7 @@
         </div>
     </div>
 
-    <!-- ALL JAVASCRIPT IS PROPERLY ENCLOSED INSIDE THIS SCRIPT TAG -->
+    <!-- JAVASCRIPT LOGIC -->
     <script>
         let currentStep = 1;
         const totalSteps = 4;
@@ -796,19 +796,47 @@
         }
 
         function generatePDF() {
-            const element = document.getElementById('printableSlip');
+            const original = document.getElementById('printableSlip');
+            if (!original) return;
+
             const fullName = document.getElementById('fullName').value || 'Student';
+
+            // Create a temporary clone outside transformed modal so html2canvas renders perfectly
+            const tempContainer = document.createElement('div');
+            tempContainer.style.position = 'fixed';
+            tempContainer.style.top = '-9999px';
+            tempContainer.style.left = '-9999px';
+            tempContainer.style.width = '650px';
+            tempContainer.style.backgroundColor = '#ffffff';
+            tempContainer.style.color = '#111827';
+            tempContainer.style.direction = 'rtl';
             
+            const clone = original.cloneNode(true);
+            clone.classList.remove('hidden');
+            clone.style.width = '100%';
+            clone.style.maxWidth = '100%';
+            clone.style.boxShadow = 'none';
+
+            tempContainer.appendChild(clone);
+            document.body.appendChild(tempContainer);
+
             const opt = {
-                margin:       10,
+                margin:       8,
                 filename:     `Gaylani_Student_${fullName}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                html2canvas:  { scale: 2, useCORS: true, logging: false, scrollX: 0, scrollY: 0 },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            html2pdf().set(opt).from(element).save().catch(err => {
+            html2pdf().set(opt).from(clone).save().then(() => {
+                if (document.body.contains(tempContainer)) {
+                    document.body.removeChild(tempContainer);
+                }
+            }).catch(err => {
                 console.error("PDF Generation Error:", err);
+                if (document.body.contains(tempContainer)) {
+                    document.body.removeChild(tempContainer);
+                }
                 alert("کێشەیەک ڕوویدا لە دروستکردنی PDF.");
             });
         }

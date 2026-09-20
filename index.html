@@ -236,14 +236,12 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-xs sm:text-sm font-bold text-gray-200 mb-1.5" for="birthDateDisplay">
+                            <label class="block text-xs sm:text-sm font-bold text-gray-200 mb-1.5" for="birthDate">
                                 بەرواری لەدایکبوون <span class="text-red-400">*</span>
                             </label>
-                            <div class="relative cursor-pointer" onclick="openDatePicker()">
-                                <input type="text" id="birthDateDisplay" readonly placeholder="ڕۆژ / مانگ / ساڵ" 
-                                       class="w-full bg-inputbg border border-emerald-800 rounded-xl px-4 py-3.5 text-xs sm:text-sm text-white placeholder-gray-400 focus:outline-none focus:border-gold-500 transition-colors cursor-pointer">
-                                <input type="date" id="birthDate" class="absolute opacity-0 pointer-events-none w-0 h-0" onchange="onBirthDateChange(this)">
-                                <i class="fa-regular fa-calendar absolute left-3.5 top-4 text-emerald-500 text-base"></i>
+                            <div class="relative">
+                                <input type="date" id="birthDate" 
+                                       class="w-full bg-inputbg border border-emerald-800 rounded-xl px-4 py-3.5 text-xs sm:text-sm text-white focus:outline-none focus:border-gold-500 transition-colors cursor-pointer">
                             </div>
                         </div>
                         <div>
@@ -512,35 +510,8 @@
         let currentStep = 1;
         const totalSteps = 4;
         
-        // Google Sheets Web App URL (Updated with your custom URL)
+        // Google Sheets Web App URL
         const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzC_qkFMoF1eQk7-Bo1Y5sFWhuLZbrphUHej71PE03PEYrNlBoXliVnaQzpNXMGqSpe/exec";
-
-        function openDatePicker() {
-            const dateInput = document.getElementById('birthDate');
-            if (dateInput.showPicker) {
-                try {
-                    dateInput.showPicker();
-                } catch(e) {
-                    dateInput.click();
-                }
-            } else {
-                dateInput.click();
-            }
-        }
-
-        function onBirthDateChange(input) {
-            const displayInput = document.getElementById('birthDateDisplay');
-            if (input.value) {
-                const parts = input.value.split('-');
-                if (parts.length === 3) {
-                    displayInput.value = `${parts[2]} / ${parts[1]} / ${parts[0]}`;
-                } else {
-                    displayInput.value = input.value;
-                }
-            } else {
-                displayInput.value = '';
-            }
-        }
 
         function formatDisplayDate(dateStr) {
             if (!dateStr) return "دیاری نەکراوە";
@@ -952,7 +923,7 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             
-            const ADMIN_PASSCODE = "9091"; // وشەی تێپەڕی بەڕێوەبەر
+            const ADMIN_PASSCODE = "9091";
 
             function checkAdminAccess() {
                 const isAdmin = localStorage.getItem('gaylani_is_admin') === 'true';
@@ -1000,6 +971,7 @@
                     renderAdminTable();
                     document.getElementById('adminModal').classList.remove('opacity-0', 'pointer-events-none');
                 } else {
+                    errorMsg.classList.add('hidden');
                     errorMsg.classList.remove('hidden');
                 }
             }
@@ -1041,7 +1013,6 @@
                 disableAdminMode();
             });
 
-            // Check admin status on load
             checkAdminAccess();
 
             document.getElementById('prevBtn').addEventListener('click', function() {
@@ -1071,13 +1042,9 @@
                 }
             });
 
-            // Close modal handler
             document.getElementById('closeModalBtn').addEventListener('click', closeModal);
-
-            // PDF Download handler
             document.getElementById('pdfBtn').addEventListener('click', generatePDF);
 
-            // Admin Panel listeners
             document.getElementById('adminLoginBtn').addEventListener('click', function() {
                 renderAdminTable();
                 const modal = document.getElementById('adminModal');

@@ -388,7 +388,7 @@
                 <div id="slipDetails" class="space-y-2 py-1"></div>
                 <div class="border-t border-gray-300 pt-3 flex justify-between items-center text-xs text-gray-700">
                     <span class="font-bold">واژۆی بەڕێوەبەرایەتی / مۆهر</span>
-                    <span>بەروار: <span id="slipDate"></span></span>
+                    <span>کاتی تۆمار: <span id="slipDateTime" class="font-mono font-bold"></span></span>
                 </div>
                 <p class="text-[10px] text-center text-emerald-900 font-bold pt-1.5 bg-gold-50 p-2 rounded-lg border border-gold-300">ئەم ڕاپۆرتە بە شێوەی ئۆتۆماتیکی لە سیستەمی قوتابخانەی گەیلانی دەرچووە.</p>
             </div>
@@ -432,7 +432,7 @@
 
     <!-- Admin Data Dashboard Modal -->
     <div id="adminModal" class="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 z-50 opacity-0 pointer-events-none transition-opacity duration-300">
-        <div class="bg-cardbg border border-emerald-700 w-full max-w-5xl rounded-3xl p-5 sm:p-6 text-right space-y-4 shadow-2xl max-h-[90vh] flex flex-col justify-between">
+        <div class="bg-cardbg border border-emerald-700 w-full max-w-6xl rounded-3xl p-5 sm:p-6 text-right space-y-4 shadow-2xl max-h-[90vh] flex flex-col justify-between">
             <div>
                 <!-- Admin Header -->
                 <div class="flex items-center justify-between border-b border-emerald-800/80 pb-3 mb-4">
@@ -442,7 +442,7 @@
                         </div>
                         <div>
                             <h3 class="text-base sm:text-lg font-extrabold text-white">داشبۆردی بەڕێوەبەرایەتی - قوتابییە تۆمارکراوەکان</h3>
-                            <p class="text-xs text-emerald-400">سەرجەم زانیارییە تۆمارکراوەکان</p>
+                            <p class="text-xs text-emerald-400">سەرجەم زانیارییە تۆمارکراوەکان بە کات و بەروارەوە</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
@@ -478,6 +478,7 @@
                     <table class="w-full text-right text-xs sm:text-sm text-gray-200">
                         <thead class="bg-inputbg text-gold-400 font-bold border-b border-emerald-800 sticky top-0">
                             <tr>
+                                <th class="p-3">کاتی تۆمارکردن</th>
                                 <th class="p-3">کۆد</th>
                                 <th class="p-3">ناوی چواری</th>
                                 <th class="p-3">ڕەگەز</th>
@@ -706,7 +707,7 @@
             `;
         }
 
-        function showModal(message, iconClass = "fa-circle-info", title = "ئاگاداری", isSuccess = false, registrationCode = "") {
+        function showModal(message, iconClass = "fa-circle-info", title = "ئاگاداری", isSuccess = false, registrationCode = "", registrationDateTime = "") {
             const modal = document.getElementById('customModal');
             const modalBox = document.getElementById('modalBox');
             const printableSlip = document.getElementById('printableSlip');
@@ -732,9 +733,8 @@
                 const islamicKnowledge = document.getElementById('islamicKnowledge').value || "";
                 const phone = document.getElementById('phoneNumber').value || "";
                 const address = document.getElementById('fullAddress').value || "";
-                const currentDate = new Date().toLocaleDateString('en-GB');
 
-                document.getElementById('slipDate').innerText = currentDate;
+                document.getElementById('slipDateTime').innerText = registrationDateTime;
 
                 document.getElementById('slipDetails').innerHTML = `
                     <div class="grid grid-cols-2 gap-2 bg-gray-50 p-3 rounded-xl border border-gray-200 text-xs text-gray-800">
@@ -828,6 +828,12 @@
             const phone = document.getElementById('phoneNumber').value || "";
             const address = document.getElementById('fullAddress').value || "";
 
+            // Precise Date and Time Generation
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('en-GB'); // DD/MM/YYYY
+            const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+            const dateTimeStr = `${dateStr} ${timeStr}`;
+
             const record = {
                 code,
                 shift,
@@ -841,7 +847,8 @@
                 islamicKnowledge,
                 phone,
                 address,
-                date: new Date().toLocaleDateString('en-GB')
+                dateTime: dateTimeStr,
+                date: dateStr
             };
 
             // 1. Save locally in browser storage (backup & admin dashboard)
@@ -862,6 +869,8 @@
                     console.error("Google Sheets Sync Error:", err);
                 });
             }
+
+            return dateTimeStr;
         }
 
         function renderAdminTable(filterText = "") {
@@ -877,12 +886,13 @@
             });
 
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-gray-400 font-bold">هیچ قوتابییەک تۆمار نەکراوە یان نەدۆزرایەوە.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="11" class="p-6 text-center text-gray-400 font-bold">هیچ قوتابییەک تۆمار نەکراوە یان نەدۆزرایەوە.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = filtered.map(item => `
                 <tr class="hover:bg-emerald-900/30 transition-colors">
+                    <td class="p-3 font-mono text-xs text-gold-300 font-bold" dir="ltr">${item.dateTime || item.date || '-'}</td>
                     <td class="p-3 font-mono font-bold text-gold-400">${item.code}</td>
                     <td class="p-3 font-extrabold text-white">${item.fullName}</td>
                     <td class="p-3 text-gray-200">${item.gender}</td>
@@ -905,10 +915,10 @@
             }
 
             let csvContent = "\uFEFF"; // UTF-8 BOM for Kurdish support in Excel
-            csvContent += "کۆد,ناوی چواری,ڕەگەز,لەدایکبوون,بڕوانامە,پسپۆڕی,باری خێزانی,پیشە,ئاستی شەرعی,مۆبایل,ناونیشان,بەروار\n";
+            csvContent += "کاتی تۆمارکردن,کۆد,ناوی چواری,ڕەگەز,لەدایکبوون,بڕوانامە,پسپۆڕی,باری خێزانی,پیشە,ئاستی شەرعی,مۆبایل,ناونیشان\n";
 
             data.forEach(row => {
-                csvContent += `"${row.code}","${row.fullName}","${row.gender}","${row.birthDate}","${row.qual}","${row.spec}","${row.maritalStatus}","${row.occupation || ''}","${row.islamicKnowledge}","${row.phone}","${row.address}","${row.date}"\n`;
+                csvContent += `"${row.dateTime || row.date || ''}","${row.code}","${row.fullName}","${row.gender}","${row.birthDate}","${row.qual}","${row.spec}","${row.maritalStatus}","${row.occupation || ''}","${row.islamicKnowledge}","${row.phone}","${row.address}"\n`;
             });
 
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -1028,14 +1038,15 @@
                     }
                     
                     const randomCode = "GAYLANI-2026-" + Math.floor(1000 + Math.random() * 9000);
-                    saveRegistrationData(randomCode);
+                    const registrationDateTime = saveRegistrationData(randomCode);
 
                     showModal(
                         "داواکارییەکەت بەسەرکەوتوویی لە قوتابخانەی گەیلانی بۆ زانستە شەرعییەکان تۆمارکرا بۆ دەوامی دوانیوەڕۆیان (١:٣٠ تا ٤:٣٠).\nسەرکەوتوو و بەختەوەر بن.", 
                         "fa-circle-check text-gold-400", 
                         "تۆمارکردن بەسەرکەوتوویی ئەنجامدرا",
                         true,
-                        randomCode
+                        randomCode,
+                        registrationDateTime
                     );
                 } else {
                     navigateStep(1);
@@ -1051,7 +1062,7 @@
                 modal.classList.remove('opacity-0', 'pointer-events-none');
             });
 
-            document.getElementById('closeAdminBtn').addEventListener('click', function() {
+            document.getElementById('closeAdminBtn').addEventListener('click', function(e) {
                 const modal = document.getElementById('adminModal');
                 modal.classList.add('opacity-0', 'pointer-events-none');
             });

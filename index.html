@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ckb" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -511,6 +511,9 @@
     <script>
         let currentStep = 1;
         const totalSteps = 4;
+        
+        // Google Sheets Web App URL (Updated with your custom URL)
+        const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzC_qkFMoF1eQk7-Bo1Y5sFWhuLZbrphUHej71PE03PEYrNlBoXliVnaQzpNXMGqSpe/exec";
 
         function openDatePicker() {
             const dateInput = document.getElementById('birthDate');
@@ -801,7 +804,6 @@
 
             const fullName = document.getElementById('fullName').value || 'Student';
 
-            // Create a temporary clone outside transformed modal so html2canvas renders perfectly
             const tempContainer = document.createElement('div');
             tempContainer.style.position = 'fixed';
             tempContainer.style.top = '-9999px';
@@ -871,9 +873,24 @@
                 date: new Date().toLocaleDateString('en-GB')
             };
 
+            // 1. Save locally in browser storage (backup & admin dashboard)
             let existing = JSON.parse(localStorage.getItem('gaylani_registrations') || "[]");
             existing.unshift(record);
             localStorage.setItem('gaylani_registrations', JSON.stringify(existing));
+
+            // 2. Send live data to Google Sheets via fetch API (no-cors mode for Google Apps Script Web App)
+            if (GOOGLE_SHEET_URL && GOOGLE_SHEET_URL.startsWith('https://')) {
+                fetch(GOOGLE_SHEET_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(record)
+                }).catch(err => {
+                    console.error("Google Sheets Sync Error:", err);
+                });
+            }
         }
 
         function renderAdminTable(filterText = "") {
